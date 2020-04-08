@@ -1,0 +1,11 @@
+{
+  "name": "go-stack",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/rattones/go-stack",
+  "author": "Marcelo Ratton <rattones@marcelorattoncom>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
