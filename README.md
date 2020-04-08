@@ -15,3 +15,7 @@ Treinamento **GoStack** da [RocketSeat](http://rocketseat.com.br/)
 - **Query Params**: filtros e paginação
 - **Route Params**: identificara recursos na hora de atualizar ou deletar
 - **Request Body**: conteúdo para criar ou editar um recurso
+
+### Middleware
+
+Interceptador de requisições que pode **interroper** totalmente a requisição ou **alterar** dados da requisição

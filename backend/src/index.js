@@ -1,5 +1,5 @@
 const express = require('express');
-const { uuid } = require('uuidv4');
+const { uuid, isUuid } = require('uuidv4');
 
 const app = express();
 
@@ -7,6 +7,32 @@ app.use(express.json());
 
 const projects = [];
 
+function logRequests(req, res, next) {
+  const { method, url } = req;
+
+  const logLabel = `[${method.toUpperCase()}] ${url}`
+
+  console.time(logLabel);
+
+  next(); // chamada do próximo middleware -> rotas
+
+  console.timeEnd(logLabel);
+}
+
+function validadeProjectId(req, res, next) {
+  const { id } = req.params;
+
+  if (!isUuid(id)) {
+    return res.status(400).json({ error: "Invalid project ID"});
+  }
+
+  return next();
+}
+
+app.use(logRequests);
+app.use('/projects/:id', validadeProjectId)
+
+// app.get('/projects', logRequests, middleware2, middleware3 (req, res) => { // qtos middlewares forem necessários
 app.get('/projects', (req, res) => {
   const { title } = req.query;
 
