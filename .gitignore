@@ -1,4 +1,27 @@
 # project files
 */node_modules
 */yarn.lock
+
 yarn.lock
+
+# typescript
+*/typescript/node_modules
+*/typescript/yarn.lock
+
+#go-barber
+*/go-barber/*/node_modules
+*/go-barber/*/yarn.lock
+
+#desafios
+*/desafios
+
+#modelo de arquivo
+cronograma-modelo-semana.md
+
+#desenecessário
+.gitignore
+*/.gitignore
+*/*/gitignore
+
+#arquivos do banco de dados
+dbPostgres
