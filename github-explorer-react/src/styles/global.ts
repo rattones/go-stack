@@ -16,7 +16,7 @@ body {
 }
 
 body, input, button {
-  font: 16px Fira-Sans, sans-serif;
+  font: 16px Roboto, sans-serif;
 }
 
 #root {
