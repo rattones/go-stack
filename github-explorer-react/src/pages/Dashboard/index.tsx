@@ -1,67 +1,68 @@
-import React from 'react';
+import React, { useState, FormEvent } from 'react';
 import { FiChevronRight } from 'react-icons/fi';
 
 import logoImg from '../../assets/logo.svg';
 
 import { Title, Form, Repositories } from './styles';
+import api from '../../services/api';
+
+interface Repository {
+  full_name: string;
+  description: string;
+  owner: {
+    login: string;
+    avatar_url: string;
+  }
+}
 
 const Dashboard: React.FC = () => {
+
+  const [ newRepo, setNewRepo ] = useState('');
+  const [ repositories, setRepositories ] = useState<Repository[]>([]);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement> ): Promise<void> {
+    event.preventDefault();
+
+    const response = await api.get<Repository>(`repos/${newRepo}`);
+
+    console.log(response);
+
+    const repository = response.data;
+
+    setRepositories([...repositories, repository]);
+    setNewRepo('');
+  }
+
   return (
     <>
       <img src={logoImg} alt="Github Explorer" />
       <Title>Explore repositórios no Github</Title>
 
-      <Form>
-        <input placeholder="Digite o nome do repositório" />
+      <Form onSubmit={handleSubmit}>
+        <input
+          value={newRepo}
+          onChange={(event) => setNewRepo(event.target.value)}
+          placeholder="Digite o nome do repositório"
+        />
         <button type="submit">Pesquisar</button>
       </Form>
 
       <Repositories>
-        <a href='#'>
-          <img src="https://avatars2.githubusercontent.com/u/28392040?s=460&u=f1110b52c0c0b36a38bd423ccd2c6ea55e611a3c&v=4"
-            alt="Marcelo Ratton"/>
+        {repositories.map(repository => (
+          <a key={repository.full_name} href='#'>
+            <img src={repository.owner.avatar_url}
+              alt={repository.owner.login}/>
 
-          <div>
-            <strong>rattones/linux-setup-xubuntu</strong>
-            <p>creating a setup to my xubuntu</p>
-          </div>
+            <div>
+              <strong>{repository.full_name}</strong>
+              <p>{repository.description}</p>
+            </div>
 
-          <FiChevronRight size={20} />
-        </a>
-        <a href='#'>
-          <img src="https://avatars2.githubusercontent.com/u/28392040?s=460&u=f1110b52c0c0b36a38bd423ccd2c6ea55e611a3c&v=4"
-            alt="Marcelo Ratton"/>
+            <FiChevronRight size={20} />
+          </a>
 
-          <div>
-            <strong>rattones/linux-setup-xubuntu</strong>
-            <p>creating a setup to my xubuntu</p>
-          </div>
-
-          <FiChevronRight size={20} />
-        </a>
-        <a href='#'>
-          <img src="https://avatars2.githubusercontent.com/u/28392040?s=460&u=f1110b52c0c0b36a38bd423ccd2c6ea55e611a3c&v=4"
-            alt="Marcelo Ratton"/>
-
-          <div>
-            <strong>rattones/linux-setup-xubuntu</strong>
-            <p>creating a setup to my xubuntu</p>
-          </div>
-
-          <FiChevronRight size={20} />
-        </a>
-        <a href='#'>
-          <img src="https://avatars2.githubusercontent.com/u/28392040?s=460&u=f1110b52c0c0b36a38bd423ccd2c6ea55e611a3c&v=4"
-            alt="Marcelo Ratton"/>
-
-          <div>
-            <strong>rattones/linux-setup-xubuntu</strong>
-            <p>creating a setup to my xubuntu</p>
-          </div>
-
-          <FiChevronRight size={20} />
-        </a>
-      </Repositories>
+        ))}
+        </Repositories>
     </>
   )
 }
