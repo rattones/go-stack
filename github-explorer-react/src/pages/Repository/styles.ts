@@ -118,3 +118,11 @@ export const Issues = styled.div`
     }
   }
 `;
+
+export const Loading = styled.p`
+  display: flex;
+  margin-top: 120px;
+  align-items: center;
+  font-size: 72;
+  color: #a8a8b3;
+`;

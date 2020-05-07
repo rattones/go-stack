@@ -1,17 +1,66 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouteMatch, Link } from 'react-router-dom'
 
 import logoImg from '../../assets/logo.svg';
 
-import { Header, RepositoryInfo, Issues } from './styles';
+import { Header, RepositoryInfo, Issues, Loading } from './styles';
 import { FiChevronsLeft, FiChevronRight } from 'react-icons/fi';
+import api from '../../services/api';
 
 interface RepositoryParams {
   repository: string;
 }
 
+interface RepositoryDTO {
+  full_name: string;
+  description: string;
+  stargazers_count: number;
+  forks_count: number;
+  open_issues_count: number;
+  owner: {
+    login: string;
+    avatar_url: string;
+  }
+}
+
+interface Issue {
+  id: string;
+  title: string;
+  html_url: string;
+  user: {
+    login: string;
+  }
+}
+
 const Repository: React.FC = () => {
   const { params } = useRouteMatch<RepositoryParams>();
+
+  const [repository, setRepository] = useState<RepositoryDTO | null>(null);
+  const [issues, setIssues] = useState<Issue[]>([]);
+
+  async function getRepositoryLocalData(repositoryName: string): Promise<RepositoryDTO | null>  {
+    const storageData = localStorage.getItem('@GithubExplorer:repositories');
+    if (!storageData) {
+      return null;
+    }
+    const repositories = JSON.parse(storageData);
+
+    const repository = repositories.filter((repo:RepositoryDTO) => repo.full_name === repositoryName);
+
+    return repository.pop();
+  }
+
+  useEffect(() => {
+    getRepositoryLocalData(params.repository)
+      .then(response => {
+        setRepository(response);
+      });
+    api.get(`repos/${params.repository}/issues`)
+      .then(response => {
+        setIssues(response.data);
+      });
+  }, [params.repository]);
+
   return (
     <>
       <Header>
@@ -21,39 +70,45 @@ const Repository: React.FC = () => {
           Voltar
         </Link>
       </Header>
-      <RepositoryInfo>
-        <header>
-          <img src="https://avatars1.githubusercontent.com/u/28392040?v=4" alt="Marcelo Ratton" />
-          <div>
-            <strong>{params.repository}</strong>
-            <p>descrição do repositorio</p>
-          </div>
-        </header>
-        <ul>
-        <li>
-            <strong>1080</strong>
-            <span>Stars</span>
-          </li>
-          <li>
-            <strong>10</strong>
-            <span>Forks</span>
-          </li>
-          <li>
-            <strong>8</strong>
-            <span>Issues abertas</span>
-          </li>
-        </ul>
-      </RepositoryInfo>
+      { repository ? (
+        <RepositoryInfo>
+          <header>
+            <img src={repository.owner.avatar_url} alt={repository.owner.login} />
+            <div>
+              <strong>{repository.owner.login}</strong>
+              <p>{repository.description}</p>
+            </div>
+          </header>
+          <ul>
+            <li>
+              <strong>{repository.stargazers_count}</strong>
+              <span>Stars</span>
+            </li>
+            <li>
+              <strong>{repository.forks_count}</strong>
+              <span>Forks</span>
+            </li>
+            <li>
+              <strong>{repository.open_issues_count}</strong>
+              <span>Issues abertas</span>
+            </li>
+          </ul>
+        </RepositoryInfo>
+      ) : (
+        <Loading>Carregando... </Loading>
+      )}
 
       <Issues>
-        <Link to="issue-teste">
-          <div>
-            <strong>repository.full_name</strong>
-            <p>repository.description</p>
-          </div>
+        {issues.map(issue => (
+          <a key={issue.id} href={issue.html_url} target="_blank">
+            <div>
+              <strong>{issue.title}</strong>
+              <p>{issue.user.login}</p>
+            </div>
 
-          <FiChevronRight size={20} />
-        </Link>
+            <FiChevronRight size={20} />
+          </a>
+        ))}
       </Issues>
     </>
   )

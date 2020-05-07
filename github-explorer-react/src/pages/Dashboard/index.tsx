@@ -7,9 +7,12 @@ import logoImg from '../../assets/logo.svg';
 import { Title, Form, Repositories, Error } from './styles';
 import api from '../../services/api';
 
-interface Repository {
+interface RepositoryDTO {
   full_name: string;
   description: string;
+  stargazers_count: number;
+  forks_count: number;
+  open_issues_count: number;
   owner: {
     login: string;
     avatar_url: string;
@@ -20,7 +23,7 @@ const Dashboard: React.FC = () => {
 
   const [ newRepo, setNewRepo ] = useState('');
   const [ inputError, setInputError ] = useState('');
-  const [ repositories, setRepositories ] = useState<Repository[]>(() => {
+  const [ repositories, setRepositories ] = useState<RepositoryDTO[]>(() => {
     const storageRepositories = localStorage.getItem('@GithubExplorer:repositories');
 
     return storageRepositories? JSON.parse(storageRepositories): [];
@@ -38,11 +41,27 @@ const Dashboard: React.FC = () => {
     }
 
     try {
-      const response = await api.get<Repository>(`repos/${newRepo}`);
+      const response = await api.get<RepositoryDTO>(`repos/${newRepo}`);
 
-      // console.log(response);
+      const {
+        full_name,
+        description,
+        stargazers_count,
+        forks_count,
+        open_issues_count,
+        owner: {login,avatar_url}
+      }: RepositoryDTO = response.data;
 
-      const repository = response.data;
+      const repository:RepositoryDTO = {
+        full_name,
+        description,
+        stargazers_count,
+        forks_count,
+        open_issues_count,
+        owner: {login, avatar_url}
+      };
+
+      console.log(repository);
 
       setRepositories([...repositories, repository]);
       setNewRepo('');
